@@ -1,8 +1,12 @@
 import os
 import json
 from PIL import Image
-from collections import defaultdict
+import skimage.transform as transform
+from skimage.io import imread
 import random
+import numpy as np
+import pandas as pd
+from collections import defaultdict
 
 photo_dir = "./RoCoLe/Photos/"
 class_path = "./RoCoLe/Annotations/RoCoLe-classes.xlsx"
@@ -17,7 +21,7 @@ multiclass_classification = {
     "red_spider_mite": 5
 }
 
-def classify_images(IMG_DIM = 720):
+def preprocess_images(IMG_DIM = 720):
 
     path = os.path.abspath(os.path.join("./RoCoLe/","Resized Photos"))
     if not os.path.exists(path):
@@ -27,6 +31,8 @@ def classify_images(IMG_DIM = 720):
             return e
             
     multiclass_dict = defaultdict(list)
+    flatten_images = []
+    image_classification = []
     with open(json_path) as photo_json:
         photo_data = json.load(photo_json)
         for photo_info in photo_data:
@@ -41,39 +47,46 @@ def classify_images(IMG_DIM = 720):
             image_resize = image.resize((IMG_DIM, IMG_DIM), Image.BILINEAR)
             image_resize_name = str(class_num) + "_{}".format(img_name)
             image_resize.save(os.path.join(path, image_resize_name))
+            
+            # Convert into matrix and save into a dataframe
+            image_array = imread(os.path.join(path, image_resize_name))
+            flatten_images.append(image_array.flatten())
+            image_classification.append(class_num)
+            
             multiclass_dict[img_class].append(image_resize_name)
     
-    return multiclass_dict
+    df = pd.DataFrame(np.array(flatten_images))
+    df['label'] = np.array(image_classification)
+    df.to_pickle('image_classified_df.pkl')
 
-def train_test_val_split(img_dict, test_size = 0.1, val_size = 0.1):
-    random.seed(1)
+    json_dict = json.dumps(multiclass_dict)
+    f = open("multiclass_dict.json", "w")
+    f.write(json_dict)
+    f.close()
 
-    train, test, val = [], [], []
+    print("Finished preprocessing Dataset.")
+    
+    
 
-    for c in img_dict:
-        img_names = list(set(img_dict[c]))
-        random.shuffle(img_names)
+# def train_test_val_split(img_dict, test_size = 0.1, val_size = 0.1):
+#     random.seed(1)
 
-        dataset_size = len(img_names)
+#     train, test, val = [], [], []
 
-        test_split = int(test_size * len(img_names))
-        val_split = int(val_size * len(img_names))
+#     for c in img_dict:
+#         img_names = list(set(img_dict[c]))
+#         random.shuffle(img_names)
 
-        test.extend(img_names[:test_split])
-        val.extend(img_names[test_split:test_split + val_split])
-        train.extend(img_names[test_split + val_split:])
+#         dataset_size = len(img_names)
+
+#         test_split = int(test_size * len(img_names))
+#         val_split = int(val_size * len(img_names))
+
+#         test.extend(img_names[:test_split])
+#         val.extend(img_names[test_split:test_split + val_split])
+#         train.extend(img_names[test_split + val_split:])
         
-    return train, test, val
-
-def read_dict(multiclass_dict = "multiclass_dict.json"):
-    try:
-        with open(multiclass_dict) as f:
-            data = f.read()
-    except Exception as e:
-        return None
-
-    return json.loads(data)
-
+#     return train, test, val
 
 # width, height = image.size
 # pad_width = width // 2
