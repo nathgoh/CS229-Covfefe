@@ -6,10 +6,10 @@ import svm
 
 def main():
     # Do this if dataset and dictionary haven't been created yet
-    data_processing.preprocess_images()
+    data_processing.preprocess_images(128)
     svm.svm_baseline()
     # print(accuracy)
     
 
 if __name__ == '__main__':
-    main()
+    main() 

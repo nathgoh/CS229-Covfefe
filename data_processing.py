@@ -42,27 +42,29 @@ def preprocess_images(IMG_DIM = 720):
             img_class = photo_info['Label']['classification']
             class_num = multiclass_classification[img_class]
 
-            # Resize images so that they are all the same size (720, 720)
-            image = Image.open(os.path.join(photo_dir, img_name))
-            image_resize = image.resize((IMG_DIM, IMG_DIM), Image.BILINEAR)
-            image_resize_name = str(class_num) + "_{}".format(img_name)
-            image_resize.save(os.path.join(path, image_resize_name))
+            # Resize images so that they are all the same size
+            # image = Image.open(os.path.join(photo_dir, img_name))
+            # image_resize = image.resize((IMG_DIM, IMG_DIM), Image.BILINEAR)
+            # image_resize_name = str(class_num) + "_{}".format(img_name)
+            # image_resize.save(os.path.join(path, image_resize_name))
             
             # Convert into matrix and save into a dataframe
-            image_array = imread(os.path.join(path, image_resize_name))
-            flatten_images.append(image_array.flatten())
+            # image_array = imread(os.path.join(path, image_resize_name))
+            image = imread(os.path.join(photo_dir, img_name))
+            image_resize = transform.resize(image,(IMG_DIM, IMG_DIM), anti_aliasing = True)
+            flatten_images.append(image_resize.flatten())
             image_classification.append(class_num)
             
-            multiclass_dict[img_class].append(image_resize_name)
+            # multiclass_dict[img_class].append(image_resize_name)
     
     df = pd.DataFrame(np.array(flatten_images))
     df['label'] = np.array(image_classification)
     df.to_pickle('image_classified_df.pkl')
 
-    json_dict = json.dumps(multiclass_dict)
-    f = open("multiclass_dict.json", "w")
-    f.write(json_dict)
-    f.close()
+    # json_dict = json.dumps(multiclass_dict)
+    # f = open("multiclass_dict.json", "w")
+    # f.write(json_dict)
+    # f.close()
 
     print("Finished preprocessing Dataset.")
     
