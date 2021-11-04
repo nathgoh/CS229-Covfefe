@@ -1,12 +1,13 @@
 from time import time
 import pandas as pd
 import numpy as np
-from sklearn.decomposition import PCA
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn import svm, metrics
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 
-def svm_baseline(C = [1, 10, 100, 1000], gamma = [0.001, 0.0001, 0.005, 0.0005], kernel = ['rbf'], split = 0.8):
+def svm_baseline(C = [1, 10, 100, 1000], gamma = [0.0001, 0.001, 0.005], kernel = ['rbf'], split = 0.8):
     param_grid = {
         'C': C,
         'gamma': gamma,
@@ -61,4 +62,9 @@ def svm_baseline(C = [1, 10, 100, 1000], gamma = [0.001, 0.0001, 0.005, 0.0005],
     print("\nClassification report: ")
     print(metrics.classification_report(Y_test, predictions, labels = [0, 1, 2, 3, 4, 5]))
 
-
+    confusion = metrics.confusion_matrix(Y_test, predictions, labels = [0, 1, 2, 3, 4, 5])
+    print("\n Confusion matrix:")
+    print(confusion)
+    cm = sns.heatmap(confusion, annot = True, fmt = 'd')
+    plt.show()
+    
