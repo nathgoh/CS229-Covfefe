@@ -7,14 +7,14 @@ from sklearn import svm, metrics
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 
-def svm_baseline(C = [1, 10, 100, 1000], gamma = [0.0001, 0.001, 0.005], kernel = ['rbf'], split = 0.8):
+def svm_baseline(image_size, C = [1, 10, 100, 1000], gamma = [0.0001, 0.001, 0.005], kernel = ['rbf'], split = 0.8):
     param_grid = {
         'C': C,
         'gamma': gamma,
         'kernel': kernel
     }
 
-    df = pd.read_pickle('image_classified_df.pkl')
+    df = pd.read_pickle('image_classified_df_{}.pkl'.format(str(image_size)))
     df = df.astype(np.float32)
     X = df.iloc[:, :-1].to_numpy()
     Y = df.iloc[:, -1].to_numpy()
@@ -43,9 +43,6 @@ def svm_baseline(C = [1, 10, 100, 1000], gamma = [0.0001, 0.001, 0.005], kernel 
     print("Predicting....")
     t0 = time()
     predictions = model.predict(X_test)
-
-    print(Y_test)
-    print(predictions)
 
     print("Prediction completed in {}s \n".format(time() - t0))
     print("Calculating metrics....")
