@@ -21,7 +21,7 @@ multiclass_classification = {
     "red_spider_mite": 5
 }
 
-def preprocess_images(IMG_DIM = 720):
+def preprocess_images(IMG_DIM = 720, save_df = True, save_resize = True):
 
     path = os.path.abspath(os.path.join("./RoCoLe/","Resized Photos"))
     if not os.path.exists(path):
@@ -43,10 +43,11 @@ def preprocess_images(IMG_DIM = 720):
             class_num = multiclass_classification[img_class]
 
             # Resize images so that they are all the same size
-            # image = Image.open(os.path.join(photo_dir, img_name))
-            # image_resize = image.resize((IMG_DIM, IMG_DIM), Image.BILINEAR)
-            # image_resize_name = str(class_num) + "_{}".format(img_name)
-            # image_resize.save(os.path.join(path, image_resize_name))
+            if save_resize:
+                image = Image.open(os.path.join(photo_dir, img_name))
+                image_resize = image.resize((IMG_DIM, IMG_DIM), Image.BILINEAR)
+                image_resize_name = str(class_num) + "_{}".format(img_name)
+                image_resize.save(os.path.join(path + "/{}".format(class_num), image_resize_name))
             
             # Convert into matrix and save into a dataframe
             # image_array = imread(os.path.join(path, image_resize_name))
@@ -56,10 +57,10 @@ def preprocess_images(IMG_DIM = 720):
             image_classification.append(class_num)
             
             # multiclass_dict[img_class].append(image_resize_name)
-    
-    df = pd.DataFrame(np.array(flatten_images))
-    df['label'] = np.array(image_classification)
-    df.to_pickle('image_classified_df.pkl')
+    if save_df:  
+        df = pd.DataFrame(np.array(flatten_images))
+        df['label'] = np.array(image_classification)
+        df.to_pickle('image_classified_df_{}.pkl'.format(str(IMG_DIM)))
 
     # json_dict = json.dumps(multiclass_dict)
     # f = open("multiclass_dict.json", "w")
