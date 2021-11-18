@@ -6,4 +6,5 @@ We implemented a baseline SVM and proposed CNN model to classify diseased coffee
 
 ### Acknowledgements
 [CS231N](https://cs231n.github.io/convolutional-networks/) and [Pranjal Soni](https://www.kaggle.com/pranjalsoni17/natural-scene-classification#Model-Fitting) for inspiration and code structural backbone and CNN architecture. 
+
 Dataset: [RoCoLe](https://doi.org/10.17632/c5yvn32dzg.2)
