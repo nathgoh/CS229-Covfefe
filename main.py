@@ -4,6 +4,7 @@ import data_processing
 import json
 import svm
 import cnn
+import plot_results
 
 def main():
     # SVM classification
@@ -11,9 +12,9 @@ def main():
     # svm.svm_baseline(64)
     
     # CNN classification
-    data_processing.preprocess_images(128, False, True)
-    # cnn.cnn()
-
+    # data_processing.preprocess_images(128, False, True)
+    history = cnn.cnn()
+    plot_results.plot_accuracies(history)
 
 if __name__ == '__main__':
     main() 

@@ -4,58 +4,53 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
 from torchvision import transforms, utils, datasets
-from conv_net import ConvNet
-
+from util_conv import ConvNet, DeviceDataLoader, EarlyStopping
 import pandas as pd
-
-#Wrap a dataloader to move data to a device 
-class DeviceDataLoader():    
-    def __init__(self, dl, device):
-        self.dl = dl
-        self.device = device
-    
-    def __iter__(self):
-        # Yield a batch of data after moving it to device
-        for b in self.dl:
-            yield to_device(b,self.device)
-            
-    def __len__(self):
-        # Number of batches
-        return len(self.dl)
-
-# Move data to the device   
-def to_device(data, device):
-    if isinstance(data,(list,tuple)):
-        return [to_device(x,device) for x in data]
-
-    return data.to(device, non_blocking = True)
 
 def cnn():
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train_dataset, val_dataset, test_dataset = create_datasets()
+    train_dataset, val_dataset, test_dataset = create_datasets(128)
     train_dataset = DeviceDataLoader(train_dataset, device)
     val_dataset = DeviceDataLoader(val_dataset, device)
     
     model = ConvNet()
     model.to(device)
-    history = fit(model, 30, train_dataset, val_dataset)
+    history = fit(model, 100, train_dataset, val_dataset)
 
+    return history
 
-def fit(model, epochs, train_dataset, val_dataset, lr = 0.001, optim = optim.SGD):
+@torch.no_grad()
+def evaluate(model, val_loader):
+    model.eval()
+    outputs = [model.validation_step(batch) for batch in val_loader]
+    return model.validation_epoch_end(outputs)
+
+def fit(model, epochs, train_dataset, val_dataset, lr = 0.001, optim = optim.Adam, early = True):
+    early_stopping = EarlyStopping()
     history = []
-    optimizer = optim(model.parameters(), lr, momentum = 0.9)
+    optimizer = optim(model.parameters(), lr)
     for epoch in range(epochs):
         model.train()
         train_losses = []
+        train_accs = []
         for batch in train_dataset:
-            loss = model.training_step(batch)
+            loss, acc = model.training_step(batch)
             train_losses.append(loss)
+            train_accs.append(acc)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
 
-        result = evaluate(model, val_loader)
+        result = evaluate(model, val_dataset)
         result['train_loss'] = torch.stack(train_losses).mean().item()
+        result['train_acc'] = torch.stack(train_accs).mean().item()
+        
+        # Early stopping
+        if early:
+            early_stopping(result['val_loss'])
+            if early_stopping.early_stop:
+                return history
+
         model.epoch_end(epoch, result)
         history.append(result)
     
@@ -63,9 +58,9 @@ def fit(model, epochs, train_dataset, val_dataset, lr = 0.001, optim = optim.SGD
 
 # Dataset for the pytorch cnn to read
 def create_datasets(batch_size = 128):
-    # Split dataset 85/5/10
-    train_count = int(0.85 * 1560)
-    val_count = int(0.05 * 1560)
+    # Split dataset 80/10/10
+    train_count = int(0.80 * 1560)
+    val_count = int(0.10 * 1560)
     test_count = 1560 - train_count - val_count
     transform = transforms.ToTensor()
 
