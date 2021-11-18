@@ -21,15 +21,26 @@ multiclass_classification = {
     "red_spider_mite": 5
 }
 
+'''
+Preprocess the image dataset by resizing images to IMG_DIM. By default, we will save the resized images
+ and a dataframe of the resized images flattened. 
+'''
 def preprocess_images(IMG_DIM = 720, save_df = True, save_resize = True):
 
+    # Create the resized picture directory, directory structured so that PyTorch DataLoader can access the images
     path = os.path.abspath(os.path.join("./RoCoLe/","Resized Photos"))
     if not os.path.exists(path):
         try:
             os.makedirs(path)
+            os.makedirs(path + "/0")
+            os.makedirs(path + "/1")
+            os.makedirs(path + "/2")
+            os.makedirs(path + "/3")
+            os.makedirs(path + "/4")
+            os.makedirs(path + "/5")
         except Exception as e:
             return e
-            
+       
     multiclass_dict = defaultdict(list)
     flatten_images = []
     image_classification = []
