@@ -4,7 +4,7 @@ import data_processing
 import json
 import svm
 import cnn
-import plot_results
+import results
 
 def main():
     # SVM classification
@@ -13,8 +13,13 @@ def main():
     
     # CNN classification
     # data_processing.preprocess_images(128, False, True)
-    history = cnn.cnn()
-    plot_results.plot_accuracies(history)
+    train_val_history, test_outputs, test_labels, test_results = cnn.cnn()
+    metrics = results.cnn_metrics(test_outputs, test_labels)
+    report = results.cnn_confusion(test_outputs, test_labels)
+
+    print(metrics)
+    print(report)
+    
 
 if __name__ == '__main__':
     main() 

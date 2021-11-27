@@ -19,18 +19,20 @@ class ImageClassificationBase(nn.Module):
 
         return loss, acc
     
-    def validation_step(self, batch):
+    def validation_step(self, batch, test):
         images, labels = batch 
 
         # Generate predictions
         out = self(images)
-
+        
         # Calculate loss                   
         loss = F.cross_entropy(out, labels)   
         
         # Calculate accuracy
         acc = accuracy(out, labels)   
 
+        if test:
+            return out, labels, {'val_loss': loss.detach(), 'val_acc': acc}
         return {'val_loss': loss.detach(), 'val_acc': acc}
         
     def validation_epoch_end(self, outputs):
@@ -120,7 +122,7 @@ class DeviceDataLoader():
     def __iter__(self):
         # Yield a batch of data after moving it to device
         for b in self.dl:
-            yield to_device(b,self.device)
+            yield to_device(b, self.device)
             
     def __len__(self):
         # Number of batches
@@ -129,7 +131,7 @@ class DeviceDataLoader():
 # Move data to the device   
 def to_device(data, device):
     if isinstance(data,(list,tuple)):
-        return [to_device(x,device) for x in data]
+        return [to_device(x, device) for x in data]
 
     return data.to(device, non_blocking = True)
 
