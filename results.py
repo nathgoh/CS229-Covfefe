@@ -13,7 +13,7 @@ def plot_accuracies(history):
     plt.legend()
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
-    plt.show()
+    plt.savefig('train_val_accuracy.png')
 
 # Plot training and validation losses over epochs   
 def plot_losses(history):
@@ -24,6 +24,7 @@ def plot_losses(history):
     plt.legend()
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
+    plt.savefig('train_val_loss.png')
 
 def cnn_metrics(outputs, labels):
     _, preds = torch.max(outputs, dim = 1)
