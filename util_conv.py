@@ -75,7 +75,7 @@ class ConvNet(ImageClassificationBase):
             nn.MaxPool2d(2, 2),
 
             nn.Flatten(),
-            nn.Linear(65536, 1024),
+            nn.Linear(102400, 1024),
             nn.ReLU(),
             nn.Linear(1024, 512),
             nn.ReLU(),
@@ -90,7 +90,7 @@ class ConvNet(ImageClassificationBase):
 # min_delta: min difference between new loss and old loss for the new loss to be considered an improvement
 class EarlyStopping():
     
-    def __init__(self, patience = 5, min_delta = 0):
+    def __init__(self, patience = 7, min_delta = 0):
         self.patience = patience
         self.min_delta = min_delta
         self.counter = 0

@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 def plot_accuracies(history):
     val_accuracies = [x['val_acc'] for x in history]
     train_accuracies = [x['train_acc'] for x in history]
+    plt.clf()
+    plt.cla()
     plt.plot(train_accuracies, color = 'red', label = 'Training Accuracy')
     plt.plot(val_accuracies, color = 'green', label = 'Validation Accuracy')
     plt.legend()
@@ -19,6 +21,8 @@ def plot_accuracies(history):
 def plot_losses(history):
     train_losses = [x.get('train_loss') for x in history]
     val_losses = [x['val_loss'] for x in history]
+    plt.clf()
+    plt.cla()
     plt.plot(train_losses, color = 'red', label = 'Training Loss')
     plt.plot(val_losses, color = 'green', label = 'Validation Loss')
     plt.legend()
@@ -27,16 +31,19 @@ def plot_losses(history):
     plt.savefig('train_val_loss.png')
 
 def cnn_metrics(outputs, labels):
-    _, preds = torch.max(outputs, dim = 1)
-    f1 = metrics.f1_score(lables, preds, average = 'macro')
-    precision = metrics.precision_score(labels, preds, average ='macro')
-    recall = metrics.recall_score(labels, preds, average ='macro')
+    outputs = outputs.cpu().data.numpy()
+    labels = labels.cpu().data.numpy()
+    f1 = metrics.f1_score(labels, outputs, average = 'macro')
+    precision = metrics.precision_score(labels, outputs, average ='macro')
+    recall = metrics.recall_score(labels, outputs, average ='macro')
 
     return {'f1': f1, 'precision': precision, 'recall': recall}
 
 def cnn_confusion(outputs, labels):
-    report = metrics.classification_report(labels, preds, labels = [0, 1, 2, 3, 4, 5])
-    confusion = metrics.confusion_matrix(labels, preds, labels = [0, 1, 2, 3, 4, 5])
+    outputs = outputs.cpu().data.numpy()
+    labels = labels.cpu().data.numpy()
+    report = metrics.classification_report(labels, outputs, labels = [0, 1, 2, 3, 4, 5])
+    confusion = metrics.confusion_matrix(labels, outputs, labels = [0, 1, 2, 3, 4, 5])
     sns.heatmap(confusion, annot = True, fmt = 'd')
     plt.savefig('confusion_matrix_CNN.png')
 

@@ -17,12 +17,12 @@ def cnn():
     
     model = ConvNet()
     model.to(device)
-    train_val_history = fit(model, 100, train_loader, val_loader)
+    train_val_history = fit(model, 50, train_loader, val_loader, early = False)
 
     test_loader = DeviceDataLoader(test_dataset, device)
-    test_outputs, test_labels, test_result = evaluate(model, test_loader, True)
+    test_outputs, test_result = evaluate(model, test_loader, True)
 
-    return train_val_history, test_outputs, test_labels, test_result
+    return train_val_history, test_outputs, test_result
 
 @torch.no_grad()
 def evaluate(model, loader, test = False):

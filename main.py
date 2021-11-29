@@ -13,10 +13,11 @@ def main():
     
     # CNN classification
     # data_processing.preprocess_images(128, False, True)
-    train_val_history, test_outputs, test_labels, test_results = cnn.cnn()
-    metrics = results.cnn_metrics(test_outputs, test_labels)
-    report = results.cnn_confusion(test_outputs, test_labels)
-
+    train_val_history, test_outputs, test_results = cnn.cnn()
+    metrics = results.cnn_metrics(test_outputs['predicted'], test_outputs['ground truth'])
+    report = results.cnn_confusion(test_outputs['predicted'], test_outputs['ground truth'])
+    results.plot_accuracies(train_val_history)
+    results.plot_losses(train_val_history)
     print(metrics)
     print(report)
     
